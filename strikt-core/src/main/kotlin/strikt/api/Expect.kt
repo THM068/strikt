@@ -1,6 +1,8 @@
 package strikt.api
 
-import strikt.api.reporting.Subject
+import org.opentest4j.MultipleFailuresError
+import strikt.api.Mode.COLLECT
+import strikt.api.Mode.FAIL_FAST
 import strikt.assertions.throws
 
 /**
@@ -22,7 +24,7 @@ fun <T> expect(subject: T): Assertion<T> = expect("Expect that %s", subject)
  * @return an assertion for [subject].
  */
 fun <T> expect(subjectDescription: String, subject: T): Assertion<T> {
-  return Assertion(Subject(subjectDescription, subject), Mode.FAIL_FAST)
+  return Assertion(Subject(subjectDescription, subject), FAIL_FAST)
 }
 
 /**
@@ -55,9 +57,9 @@ fun <T> expect(
 ): Assertion<T> {
   return Subject(subjectDescription, subject)
     .let {
-      val assertion = Assertion(it, Mode.COLLECT).apply(block)
-      if (it.anyFailed) {
-        throw AssertionFailed(it)
+      val assertion = Assertion(it, COLLECT).apply(block)
+      if (assertion.anyFailed) {
+        TODO("throw ${MultipleFailuresError::class.java.simpleName}")
       } else {
         assertion
       }

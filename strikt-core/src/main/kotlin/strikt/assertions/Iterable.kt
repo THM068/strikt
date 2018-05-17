@@ -134,14 +134,14 @@ fun <T : Iterable<E>, E> Assertion<T>.containsExactly(vararg elements: E) =
       val original = subject.toList()
       val remaining = subject.toMutableList()
       elements.forEachIndexed { i, it ->
-        assert("contains $it") {
+        assert("contains %s", it) {
           if (remaining.remove(it)) {
             pass()
             assert("…at index $i") {
               if (original[i] == it) {
                 pass()
               } else {
-                fail("found %s", original[i])
+                fail(original[i])
               }
             }
           } else {
@@ -153,7 +153,7 @@ fun <T : Iterable<E>, E> Assertion<T>.containsExactly(vararg elements: E) =
         if (remaining.isEmpty()) {
           pass()
         } else {
-          fail("found %s", remaining)
+          fail(remaining)
         }
       }
     } then {
@@ -172,7 +172,7 @@ fun <T : Iterable<E>, E> Assertion<T>.containsExactlyInAnyOrder(vararg elements:
     compose {
       val remaining = subject.toMutableList()
       elements.forEach {
-        assert("contains $it") {
+        assert("contains %s", it) {
           if (remaining.remove(it)) {
             pass()
           } else {
@@ -184,7 +184,7 @@ fun <T : Iterable<E>, E> Assertion<T>.containsExactlyInAnyOrder(vararg elements:
         if (remaining.isEmpty()) {
           pass()
         } else {
-          fail("found %s", remaining)
+          fail(remaining)
         }
       }
     } then {

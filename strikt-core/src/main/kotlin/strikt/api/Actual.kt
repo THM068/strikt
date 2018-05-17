@@ -1,4 +1,4 @@
-package strikt.api.reporting
+package strikt.api
 
 data class Actual<T>(
   val description: String,

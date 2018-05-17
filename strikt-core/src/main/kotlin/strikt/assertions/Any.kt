@@ -35,11 +35,11 @@ fun <T> Assertion<T?>.isNotNull(): Assertion<T> =
  */
 @Suppress("UNCHECKED_CAST")
 inline fun <reified T> Assertion<*>.isA(): Assertion<T> =
-  assert("is an instance of ${T::class.java.name}") {
+  assert("is an instance of %s", T::class.java.name) {
     when (subject) {
-      null -> fail("is actually %s", null)
+      null -> fail(null)
       is T -> pass()
-      else -> fail("is actually a %s", subject!!.javaClass.name)
+      else -> fail(subject!!.javaClass.name)
     }
   } as Assertion<T>
 

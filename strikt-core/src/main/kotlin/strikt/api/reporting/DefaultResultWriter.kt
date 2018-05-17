@@ -1,6 +1,10 @@
 package strikt.api.reporting
 
+import strikt.api.AssertionResult
+import strikt.api.AtomicResult
+import strikt.api.ComposedResult
 import strikt.api.Status.*
+import strikt.api.Subject
 
 internal open class DefaultResultWriter : ResultWriter {
   override fun writeTo(writer: Appendable, result: Reportable) {
@@ -9,15 +13,17 @@ internal open class DefaultResultWriter : ResultWriter {
 
   private fun writeIndented(writer: Appendable, result: Reportable, indent: Int = 0) {
     writeLine(writer, result, indent)
-    result.results.forEach {
-      writeIndented(writer, it, indent + 1)
+    if (result is ComposedResult) {
+      result.results.forEach {
+        writeIndented(writer, it, indent + 1)
+      }
     }
   }
 
   protected open fun writeLine(writer: Appendable, result: Reportable, indent: Int) {
     when (result) {
-      is Subject<*> -> result.writeSubject(writer, indent)
-      is Result     -> result.writeResult(writer, indent)
+      is Subject<*>      -> result.writeSubject(writer, indent)
+      is AssertionResult -> result.writeResult(writer, indent)
     }
   }
 
@@ -29,22 +35,24 @@ internal open class DefaultResultWriter : ResultWriter {
     writeLineEnd(writer, this)
   }
 
-  private fun Result.writeResult(writer: Appendable, indent: Int) {
+  private fun AssertionResult.writeResult(writer: Appendable, indent: Int) {
     writeLineStart(writer, this, indent)
     writeStatusIcon(writer, this)
     writer.append(description)
     writeLineEnd(writer, this)
 
     // TODO: recurse here, Actual should be just another Reportable
-    writeActual(writer, indent)
+    if (this is AtomicResult) {
+      writeActual(writer, indent)
+    }
   }
 
-  private fun Result.writeActual(writer: Appendable, indent: Int) {
+  private fun AtomicResult.writeActual(writer: Appendable, indent: Int) {
     actual?.let { actual ->
       writeLineStart(writer, this, indent + 1)
       writeActualValueIcon(writer)
       // TODO: handle without String.format
-      writer.append(actual.description.format(formatValue(actual.value)))
+      writer.append("found %s".format(formatValue(actual)))
       writeLineEnd(writer, this)
     }
   }
@@ -57,12 +65,14 @@ internal open class DefaultResultWriter : ResultWriter {
     writer.append("\n")
   }
 
-  protected open fun writeStatusIcon(writer: Appendable, node: Result) {
-    writer.append(when (node.status) {
-      Passed  -> "✓ "
-      Failed  -> "✗ "
-      Pending -> "? "
-    })
+  protected open fun writeStatusIcon(writer: Appendable, node: Reportable) {
+    if (node is AssertionResult) {
+      writer.append(when (node.status) {
+        Passed  -> "✓ "
+        Failed  -> "✗ "
+        Pending -> "? "
+      })
+    }
   }
 
   protected open fun writeActualValueIcon(writer: Appendable) {

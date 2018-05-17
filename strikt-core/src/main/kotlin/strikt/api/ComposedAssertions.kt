@@ -1,19 +1,11 @@
 package strikt.api
 
-import strikt.api.Mode.COLLECT
-import strikt.api.reporting.Result
-import strikt.api.reporting.Subject
-
 /**
  * Allows assertions to be composed, or nested.
  * This class is the receiver of the lambda passed to
  * [AssertionContext.compose].
  */
-class ComposedAssertions<T>
-internal constructor(
-  private val parent: Subject<T>,
-  private val result: Result
-) {
+interface ComposedAssertions<T> {
   /**
    * Start a chain of assertions in the current nested context.
    *
@@ -32,10 +24,7 @@ internal constructor(
    * or element of the subject of the surrounding assertion.
    * @return an assertion for [subject].
    */
-  fun <E> expect(description: String, subject: E): Assertion<E> =
-    Subject(description, subject)
-      .also(result::append)
-      .let { Assertion(it, COLLECT) }
+  fun <E> expect(description: String, subject: E): Assertion<E>
 
   /**
    * Evaluate a block of assertions in the current nested context.
@@ -64,10 +53,7 @@ internal constructor(
     description: String,
     subject: E,
     block: Assertion<E>.() -> Unit
-  ): Assertion<E> =
-    Subject(description, subject)
-      .also(result::append)
-      .let { Assertion(it, COLLECT).apply(block) }
+  ): Assertion<E>
 
   /**
    * Evaluates a composed assertion on the original subject.
@@ -76,9 +62,5 @@ internal constructor(
    * This is useful because it allows for the overall assertion to contain much
    * more detail in any failure message.
    */
-  fun assert(description: String, assertion: AssertionContext<T>.() -> Unit) =
-    parent.copy().let {
-      result.append(it)
-      Assertion(it, COLLECT).assert(description, assertion)
-    }
+  fun assert(description: String, block: AssertionContext<T>.() -> Unit): Assertion<T>
 }

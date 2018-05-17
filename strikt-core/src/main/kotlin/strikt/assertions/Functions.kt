@@ -4,7 +4,7 @@ import strikt.api.Assertion
 
 inline fun <reified E : Throwable> Assertion<() -> Unit>.throws(): Assertion<E> {
   var exception: E? = null
-  assert("throws ${E::class.java.article} ${E::class.java.simpleName}") {
+  assert("throws ${E::class.java.article} %s", E::class.java) {
     val caught = try {
       subject()
       null
@@ -12,12 +12,12 @@ inline fun <reified E : Throwable> Assertion<() -> Unit>.throws(): Assertion<E> 
       e
     }
     when (caught) {
-      null -> fail("no exception was caught", null)
+      null -> fail(null) // TODO: message ok here?
       is E -> {
         pass()
         exception = caught
       }
-      else -> fail("instead caught ${caught.javaClass.article} %s", caught.javaClass)
+      else -> fail(caught.javaClass)
     }
   }
   return if (exception != null) map { exception!! } else throw IllegalStateException()

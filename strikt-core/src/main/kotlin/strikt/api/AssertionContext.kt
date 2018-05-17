@@ -5,6 +5,7 @@ package strikt.api
  * This class allows evaluation of the [subject] value, or of composed
  * assertions, ultimately resulting in a call to [pass] or [fail].
  */
+// TODO: rename AtomicAssertion
 interface AssertionContext<T> {
   /**
    * The value that is the subject of the assertion.
@@ -25,11 +26,10 @@ interface AssertionContext<T> {
    * Report that the assertion failed providing detail about the actual value
    * of a comparison that caused the assertion to fail.
    *
-   * @param actualDescription descriptive text about [actualValue] including a
-   * placeholder in [String.format] notation for [actualValue].
-   * @param actualValue theR value(s) that violated the assertion.
+   * @param actual the actual value found if different from the subject of the
+   * assertion (for example a property or method result).
    */
-  fun fail(actualDescription: String, actualValue: Any?)
+  fun fail(actual: Any?)
 
   /**
    * Allows an assertion to be composed of multiple sub-assertions such as on

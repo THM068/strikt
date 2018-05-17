@@ -1,6 +1,6 @@
 package strikt.api
 
-import strikt.api.reporting.Reportable
+import org.opentest4j.AssertionFailedError
 import strikt.api.reporting.writeToString
 
 /**
@@ -11,7 +11,7 @@ import strikt.api.reporting.writeToString
  */
 class AssertionFailed
 internal constructor(
-  val subject: Reportable
-) : AssertionError() {
+  val subject: AssertionResult
+) : AssertionFailedError() {
   override val message: String by lazy { subject.writeToString() }
 }
